@@ -606,6 +606,16 @@ export class CalendarView extends BasesViewBase {
 				"showRecurring",
 				this.viewOptions.showRecurring
 			);
+			// show completed instances?
+			this.viewOptions.showCompletedRecurringInstances = this.getConfigOption(
+        		"showCompletedRecurringInstances",
+        		defaults.defaultShowCompletedRecurringInstances
+   			 );
+			// show skipped instances?
+			this.viewOptions.showSkippedRecurringInstances = this.getConfigOption(
+       		 "showSkippedRecurringInstances",
+        		defaults.defaultShowSkippedRecurringInstances
+  			 );
 			this.viewOptions.showTimeEntries = this.getConfigOption(
 				"showTimeEntries",
 				this.viewOptions.showTimeEntries
