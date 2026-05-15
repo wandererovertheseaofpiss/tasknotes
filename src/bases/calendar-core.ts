@@ -118,6 +118,9 @@ export interface CalendarEventGenerationOptions {
 	showScheduledToDueSpan?: boolean;
 	showTimeEntries?: boolean;
 	showRecurring?: boolean;
+	// add recurring & skipped options
+	showCompletedRecurringInstances?: boolean;
+    showSkippedRecurringInstances?: boolean;
 	showICSEvents?: boolean;
 	showTimeblocks?: boolean;
 	visibleStart?: Date;
@@ -825,7 +828,10 @@ export function generateRecurringTaskInstances(
 	task: TaskInfo,
 	startDate: Date,
 	endDate: Date,
-	plugin: TaskNotesPlugin
+	plugin: TaskNotesPlugin,
+	// completed & skipped
+	showCompleted: boolean = true, 
+    showSkipped: boolean = true
 ): CalendarEvent[] {
 	if (!task.recurrence || !task.scheduled) {
 		return [];
@@ -881,8 +887,21 @@ export function generateRecurringTaskInstances(
 			continue;
 		}
 
+		// 1. Check for Completed Instances
+        const isCompleted = task.complete_instances?.includes(instanceDate);
+        if (isCompleted && !eventConfig.showCompletedRecurringInstances) {
+            continue;
+        }
+
+        // 2. Check for Skipped Instances
+        const isSkipped = task.skipped_instances?.includes(instanceDate);
+        if (isSkipped && !eventConfig.showSkippedRecurringInstances) {
+            continue;
+        }
+
 		const eventStart = hasOriginalTime ? `${instanceDate}T${templateTime}` : instanceDate;
-		const event = createRecurringEvent(task, eventStart, instanceDate, templateTime, plugin);
+		// add isCompleted/isSkipped to createRecurringEvent so it can handle the styling
+		const event = createRecurringEvent(task, eventStart, instanceDate, templateTime, plugin, isCompleted, isSkipped);
 		if (event) instances.push(event);
 	}
 
@@ -1058,6 +1077,9 @@ export async function generateCalendarEvents(
 		showScheduledToDueSpan = false,
 		showTimeEntries = true,
 		showRecurring = true,
+		// add completed & skipped
+		showCompletedRecurringInstances = true,
+        showSkippedRecurringInstances = true,
 		showICSEvents = true,
 		showTimeblocks = false,
 		visibleStart,
@@ -1077,7 +1099,10 @@ export async function generateCalendarEvents(
 						task,
 						visibleStart,
 						visibleEnd,
-						plugin
+						plugin,
+						// complete & skipped
+						showCompletedRecurringInstances,
+        				showSkippedRecurringInstances
 					);
 					events.push(...recurringEvents);
 				}
