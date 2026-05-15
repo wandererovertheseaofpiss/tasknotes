@@ -428,7 +428,7 @@ export function renderAppearanceTab(
 					},
 				})
 			);
-
+// 1. Main recurring tasks toggle
 			group.addSetting((setting) =>
 				void configureToggleSetting(setting, {
 					name: translate(
@@ -440,11 +440,36 @@ export function renderAppearanceTab(
 					getValue: () => plugin.settings.calendarViewSettings.defaultShowRecurring,
 					setValue: async (value: boolean) => {
 						plugin.settings.calendarViewSettings.defaultShowRecurring = value;
-						save();
+						await save();
 					},
 				})
 			);
+// 2. New Sub-Setting: Completed Instances
+			group.addSetting((setting) =>
+    void configureToggleSetting(setting, {
+        name: "   └ " + translate("settings.appearance.defaultEventVisibility.showCompletedRecurring.name"), 
+        desc: translate("settings.appearance.defaultEventVisibility.showCompletedRecurring.description"),
+        getValue: () => plugin.settings.calendarViewSettings.defaultShowCompletedRecurringInstances,
+        setValue: async (value: boolean) => {
+            plugin.settings.calendarViewSettings.defaultShowCompletedRecurringInstances = value;
+            await save();
+        },
+    }).setDisabled(!plugin.settings.calendarViewSettings.defaultShowRecurring)
+);
 
+// 3. New Sub-Setting: Skipped Instances
+group.addSetting((setting) =>
+    void configureToggleSetting(setting, {
+        name: "   └ " + translate("settings.appearance.defaultEventVisibility.showSkippedRecurring.name"),
+        desc: translate("settings.appearance.defaultEventVisibility.showSkippedRecurring.description"),
+        getValue: () => plugin.settings.calendarViewSettings.defaultShowSkippedRecurringInstances,
+        setValue: async (value: boolean) => {
+            plugin.settings.calendarViewSettings.defaultShowSkippedRecurringInstances = value;
+            await save();
+        },
+    }).setDisabled(!plugin.settings.calendarViewSettings.defaultShowRecurring)
+);
+			
 			group.addSetting((setting) =>
 				void configureToggleSetting(setting, {
 					name: translate(
